@@ -8,7 +8,7 @@ RUSTFLAGS = --emit=obj \
 	-C opt-level=2 \
 	-C relocation-model=static \
 	-C code-model=kernel \
-	-C target-feature=-sse,-sse2,-mmx \
+	-C target-feature=-sse,-sse2 \
 	--target x86_64-unknown-none
 
 quiet_RS = $(Q)printf "  [RS]    %s\n" "$<";
@@ -48,6 +48,7 @@ all: iso
 # ---------------------------------------------------------------------------
 SRCS :=
 CPPSRCS :=
+RUSTSRCS :=
 
 CFLAGS = -target x86_64-elf -ffreestanding -fno-stack-protector -fno-pic \
          -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel \
@@ -134,16 +135,17 @@ SRCS += \
        kernel/user/uaccess.c \
        kernel/user/userspace.c
 
+RUSTSRCS += kernel/rust/root.rs
+
 OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS)) \
        $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(CPPSRCS)) \
+	$(patsubst %.rs,$(BUILD_DIR)/%.o,$(RUSTSRCS)) \
        $(BUILD_DIR)/kernel/arch/x86_64/entry.o \
        $(BUILD_DIR)/kernel/arch/x86_64/gdt_asm.o \
        $(BUILD_DIR)/kernel/arch/x86_64/isr.o \
        $(BUILD_DIR)/kernel/sched/context_switch.o \
        $(BUILD_DIR)/kernel/user/syscall_asm.o \
-       $(BUILD_DIR)/kernel/user/userspace_asm.o \
-
-OBJS += $(BUILD_DIR)/kernel/drivers/example/example.o
+       $(BUILD_DIR)/kernel/user/userspace_asm.o
 
 KERNEL = kernel.elf
 
@@ -159,7 +161,7 @@ $(BUILD_DIR)/%.o: %.asm
 	@mkdir -p $(dir $@)
 	$(quiet_ASM) $(NASM) -f elf64 $< -o $@
 
-$(BUILD_DIR)/kernel/drivers/example/example.o: kernel/drivers/example/example.rs
+$(BUILD_DIR)/%.o: %.rs
 	@mkdir -p $(dir $@)
 	$(quiet_RS) $(RUSTC) $(RUSTFLAGS) -o $@ $<
 

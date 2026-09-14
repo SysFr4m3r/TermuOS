@@ -2,11 +2,22 @@
     "sysroot": "/home/ronnie/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu",
     "crates": [
         {
-            "display_name": "example",
-            "root_module": "kernel/drivers/example/example.rs",
+            "display_name": "rtc",
+            "root_module": "kernel/drivers/rtc_rust/rtc.rs",
+            "edition": "2021",
+            "deps": []
+        },
+        {
+            "display_name": "panic",
+            "root_module": "kernel/rust/panic.rs",
+            "edition": "2021",
+            "deps": []
+        },
+        {
+            "display_name": "root",
+            "root_module": "kernel/rust/root.rs",
             "edition": "2021",
             "deps": []
         }
     ]
 }
-

@@ -7,6 +7,7 @@
 #include "drivers/serial/serial.h"
 #include "drivers/input/keyboard.h"
 #include "drivers/input/mouse.h"
+#include "drivers/rtc_rust/rtc_rust.h"
 #include "arch/x86_64/idt.h"
 #include "arch/x86_64/gdt.h"
 #include "arch/x86_64/pit.h"
@@ -34,8 +35,6 @@
 #include "user/userspace.h"
 
 #include "luna/luna.h"
-
-#include "drivers/example/example.h"
 
 LIMINE_BASE_REVISION(3);
 
@@ -115,7 +114,7 @@ void kernel_main(void)
     ata_ioman_register();
     keyboard_ioman_register();
 
-    example_driver_init();
+    rtc_rust_init();
 
     if (tfs_mount() == 0)
     {
