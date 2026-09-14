@@ -8,7 +8,7 @@ extern "C" {
 #[no_mangle]
 pub extern "C" fn example_driver_init() {
     unsafe {
-        kprintf(b"example: rust driver ready\n\0".as_ptr());
+        kprintf(b"example: hello from rust\n\0".as_ptr());
     }
 }
 
