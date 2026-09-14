@@ -26,6 +26,7 @@
 #include "shell/shell.h"
 #include "lib/printf.h"
 #include "lib/cxxabi.h"
+#include "lib/crc32.h"
 #include "proc/process.h"
 #include "ob/object.h"
 #include "io/ioman.h"
@@ -115,6 +116,7 @@ void kernel_main(void)
     keyboard_ioman_register();
 
     rtc_rust_init();
+    crc32_selftest();
 
     if (tfs_mount() == 0)
     {

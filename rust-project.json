@@ -18,6 +18,12 @@
             "root_module": "kernel/rust/root.rs",
             "edition": "2021",
             "deps": []
+        },
+        {
+            "display_name": "crc32",
+            "root_module": "kernel/lib/crc32.rs",
+            "edition": "2021",
+            "deps": []
         }
     ]
 }
