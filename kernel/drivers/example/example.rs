@@ -16,4 +16,3 @@ pub extern "C" fn example_driver_init() {
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
-
