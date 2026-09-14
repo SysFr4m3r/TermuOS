@@ -2,6 +2,16 @@ CC   = clang
 CXX  = clang++
 LD   = ld.lld
 NASM = nasm
+RUSTC ?= rustc
+RUSTFLAGS = --emit=obj \
+	-C panic=abort \
+	-C opt-level=2 \
+	-C relocation-model=static \
+	-C code-model=kernel \
+	-C target-feature=-sse,-sse2,-mmx \
+	--target x86_64-unknown-none
+
+quiet_RS = $(Q)printf "  [RS]    %s\n" "$<";
 
 BUILD_DIR = kbuild
 
@@ -131,7 +141,9 @@ OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS)) \
        $(BUILD_DIR)/kernel/arch/x86_64/isr.o \
        $(BUILD_DIR)/kernel/sched/context_switch.o \
        $(BUILD_DIR)/kernel/user/syscall_asm.o \
-       $(BUILD_DIR)/kernel/user/userspace_asm.o
+       $(BUILD_DIR)/kernel/user/userspace_asm.o \
+
+OBJS += $(BUILD_DIR)/kernel/drivers/example/example.o
 
 KERNEL = kernel.elf
 
@@ -146,6 +158,10 @@ $(BUILD_DIR)/%.o: %.cpp
 $(BUILD_DIR)/%.o: %.asm
 	@mkdir -p $(dir $@)
 	$(quiet_ASM) $(NASM) -f elf64 $< -o $@
+
+$(BUILD_DIR)/kernel/drivers/example/example.o: kernel/drivers/example/example.rs
+	@mkdir -p $(dir $@)
+	$(quiet_RS) $(RUSTC) $(RUSTFLAGS) -o $@ $<
 
 $(KERNEL): $(OBJS)
 	$(quiet_LD) $(LD) -T kernel/arch/x86_64/linker.ld -nostdlib -m elf_x86_64 -o $@ $(OBJS)

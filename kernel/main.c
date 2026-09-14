@@ -35,6 +35,8 @@
 
 #include "luna/luna.h"
 
+#include "drivers/example/example.h"
+
 LIMINE_BASE_REVISION(3);
 
 __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER
@@ -112,6 +114,8 @@ void kernel_main(void)
 
     ata_ioman_register();
     keyboard_ioman_register();
+
+    example_driver_init();
 
     if (tfs_mount() == 0)
     {
