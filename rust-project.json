@@ -24,6 +24,12 @@
             "root_module": "kernel/lib/crc32.rs",
             "edition": "2021",
             "deps": []
+        },
+        {
+            "display_name": "rdrand",
+            "root_module": "kernel/lib/rdrand.rs",
+            "edition": "2021",
+            "deps": []
         }
     ]
 }

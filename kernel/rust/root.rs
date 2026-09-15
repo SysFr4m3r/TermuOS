@@ -8,3 +8,6 @@ mod rtc_rust;
 
 #[path = "../lib/crc32.rs"]
 mod crc32;
+
+#[path = "../lib/rdrand.rs"]
+mod rdrand;

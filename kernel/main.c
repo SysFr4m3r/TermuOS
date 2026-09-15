@@ -27,6 +27,7 @@
 #include "lib/printf.h"
 #include "lib/cxxabi.h"
 #include "lib/crc32.h"
+#include "lib/rdrand.h"
 #include "proc/process.h"
 #include "ob/object.h"
 #include "io/ioman.h"
@@ -117,6 +118,7 @@ void kernel_main(void)
 
     rtc_rust_init();
     crc32_selftest();
+    rdrand_selftest();
 
     if (tfs_mount() == 0)
     {
