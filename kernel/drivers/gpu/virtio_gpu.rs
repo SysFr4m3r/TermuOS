@@ -37,9 +37,13 @@ extern "C" {
     fn pci_write(bus: u8, slot: u8, func: u8, offset: u8, val: u32);
     fn kprintf(fmt: *const u8, ...);
     fn termuos_hhdm_base() -> u64;
-    fn pmm_alloc_pages(n: usize) -> *mut u8;
     fn kvirt_to_phys(v: *mut u8) -> u64;
 }
+
+#[repr(C, align(4096))]
+struct QueueMem([u8; 64 * 1024]);
+
+static mut QUEUE_MEM: QueueMem = QueueMem([0; 64 * 1024]);
 
 unsafe fn pci_read8(bus: u8, slot: u8, func: u8, off: u8) -> u8 {
     let v = pci_read(bus, slot, func, off & !3);
@@ -121,16 +125,12 @@ unsafe fn setup_controlq(common: *mut u8) -> i32 {
     let total = used_off + used_bytes;
     let pages = (total + 0xfff) / 0x1000;
 
-    let mem = pmm_alloc_pages(pages);
-    if mem.is_null() {
-        kprintf(b"virtio-gpu: oom queue\n\0".as_ptr());
-        return -1;
-    }
-    core::ptr::write_bytes(mem, 0, pages * 0x1000);
+    let mem = unsafe { QUEUE_MEM.0.as_mut_ptr() };
+    core::ptr::write_bytes(mem, 0, QUEUE_MEM.0.len());
 
-    let desc_p = kvirt_to_phys(mem);
-    let avail_p = kvirt_to_phys(mem.add(desc_bytes));
-    let used_p = kvirt_to_phys(mem.add(used_off));
+    let desc_p = unsafe { kvirt_to_phys(mem) };
+    let avail_p = unsafe { kvirt_to_phys(mem.add(desc_bytes)) };
+    let used_p = unsafe { kvirt_to_phys(mem.add(used_off)) };
 
     mmio_w64(common, 0x20, desc_p);
     mmio_w64(common, 0x28, avail_p);
