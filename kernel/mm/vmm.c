@@ -12,6 +12,8 @@
 
 uint64_t hhdm_base = 0;
 
+uint64_t termuos_hhdm_base(void) { return hhdm_base; }
+
 static inline uint64_t *phys_to_virt_table(uint64_t phys)
 {
     return (uint64_t *)((phys & PAGE_MASK) + hhdm_base);
@@ -23,7 +25,8 @@ static uint64_t alloc_table(void)
     if (!phys)
     {
         kprintf("VMM: out of memory allocating page table!\n");
-        for (;;) __asm__ volatile("hlt");
+        for (;;)
+            __asm__ volatile("hlt");
     }
 
     uint64_t *virt = phys_to_virt_table(phys);
@@ -81,23 +84,26 @@ void vmm_unmap(pagemap_t pm, uint64_t virt)
 {
     uint64_t *pml4 = phys_to_virt_table(pm);
 
-    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT)) return;
+    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT))
+        return;
     uint64_t *pdpt = phys_to_virt_table(pml4[PML4_IDX(virt)]);
 
-    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT)) return;
+    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT))
+        return;
     uint64_t *pd = phys_to_virt_table(pdpt[PDPT_IDX(virt)]);
 
-    if (!(pd[PD_IDX(virt)] & VMM_PRESENT)) return;
+    if (!(pd[PD_IDX(virt)] & VMM_PRESENT))
+        return;
     uint64_t *pt = phys_to_virt_table(pd[PD_IDX(virt)]);
 
     pt[PT_IDX(virt)] = 0;
 
-    __asm__ volatile("invlpg (%0)" :: "r"(virt) : "memory");
+    __asm__ volatile("invlpg (%0)" ::"r"(virt) : "memory");
 }
 
 void vmm_switch(pagemap_t pm)
 {
-    __asm__ volatile("movq %0, %%cr3" :: "r"(pm) : "memory");
+    __asm__ volatile("movq %0, %%cr3" ::"r"(pm) : "memory");
 }
 
 uint64_t vmm_virt_to_pte(pagemap_t pm, uint64_t virt)
@@ -105,20 +111,24 @@ uint64_t vmm_virt_to_pte(pagemap_t pm, uint64_t virt)
     uint64_t *pml4 = phys_to_virt_table(pm);
     uint64_t acc = ~(uint64_t)0; /* AND of the permission bits seen so far */
 
-    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT))
+        return 0;
     acc &= pml4[PML4_IDX(virt)];
     uint64_t *pdpt = phys_to_virt_table(pml4[PML4_IDX(virt)]);
 
-    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT))
+        return 0;
     acc &= pdpt[PDPT_IDX(virt)];
     uint64_t *pd = phys_to_virt_table(pdpt[PDPT_IDX(virt)]);
 
-    if (!(pd[PD_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pd[PD_IDX(virt)] & VMM_PRESENT))
+        return 0;
     acc &= pd[PD_IDX(virt)];
     uint64_t *pt = phys_to_virt_table(pd[PD_IDX(virt)]);
 
     uint64_t pte = pt[PT_IDX(virt)];
-    if (!(pte & VMM_PRESENT)) return 0;
+    if (!(pte & VMM_PRESENT))
+        return 0;
     acc &= pte;
 
     /* Keep the leaf's address bits, but the ancestors' effective USER/WRITE. */
@@ -129,15 +139,19 @@ uint64_t vmm_virt_to_phys(pagemap_t pm, uint64_t virt)
 {
     uint64_t *pml4 = phys_to_virt_table(pm);
 
-    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pml4[PML4_IDX(virt)] & VMM_PRESENT))
+        return 0;
     uint64_t *pdpt = phys_to_virt_table(pml4[PML4_IDX(virt)]);
 
-    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pdpt[PDPT_IDX(virt)] & VMM_PRESENT))
+        return 0;
     uint64_t *pd = phys_to_virt_table(pdpt[PDPT_IDX(virt)]);
 
-    if (!(pd[PD_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pd[PD_IDX(virt)] & VMM_PRESENT))
+        return 0;
     uint64_t *pt = phys_to_virt_table(pd[PD_IDX(virt)]);
 
-    if (!(pt[PT_IDX(virt)] & VMM_PRESENT)) return 0;
+    if (!(pt[PT_IDX(virt)] & VMM_PRESENT))
+        return 0;
     return (pt[PT_IDX(virt)] & PAGE_MASK) + (virt & (PAGE_SIZE - 1));
 }

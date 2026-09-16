@@ -30,6 +30,12 @@
             "root_module": "kernel/lib/rdrand.rs",
             "edition": "2021",
             "deps": []
+        },
+        {
+            "display_name": "virtio_gpu",
+            "root_module": "kernel/drivers/gpu/virtio_gpu.rs",
+            "edition": "2021",
+            "deps": []
         }
     ]
 }

@@ -11,3 +11,6 @@ mod crc32;
 
 #[path = "../lib/rdrand.rs"]
 mod rdrand;
+
+#[path = "../drivers/gpu/virtio_gpu.rs"]
+mod virtio_gpu;
