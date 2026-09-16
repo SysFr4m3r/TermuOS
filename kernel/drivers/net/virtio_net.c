@@ -127,7 +127,7 @@ static inline uint16_t inw(uint16_t p)
     return v;
 }
 
-static uint64_t kvirt_to_phys(void *virt)
+uint64_t kvirt_to_phys(void *virt)
 {
     uint64_t cr3;
     __asm__ volatile("movq %%cr3,%0" : "=r"(cr3));
